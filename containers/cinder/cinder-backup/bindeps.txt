@@ -1,5 +1,8 @@
 # Ceph RBD support
 ceph-common
+# iSCSI backends: the backup service attaches the source volume, and os-brick's
+# iSCSI connector shells out to iscsiadm
+iscsi-initiator-utils
 # NFS backup driver: os-brick shells out to mount(8), which needs the
 # /sbin/mount.nfs helper from nfs-utils
 nfs-utils

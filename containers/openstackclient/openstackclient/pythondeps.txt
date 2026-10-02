@@ -16,3 +16,5 @@ python-cyborgclient
 # Required by the instanceha service
 python-novaclient
 prometheus_client
+# Required for network logging extension
+python-neutronclient

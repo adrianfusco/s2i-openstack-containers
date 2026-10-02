@@ -48,6 +48,7 @@ RUN pkgs=$(grep -vE '^(#|$)' /tmp/bindeps.txt | tr '\n' ' ') && \
     rm -f /tmp/bindeps.txt
 
 COPY --from=build /src/goose/target/release/goose /usr/local/bin/goose
+COPY goose/openstack-goose-entrypoint.sh /usr/local/bin/openstack-goose-entrypoint
 
 # Pinned and checksum-verified by artifacts.txt.  Goose can use these clients
 # when working against an OpenShift cluster.
@@ -57,13 +58,16 @@ RUN tar -xzf /tmp/openshift-client.tar.gz -C /usr/local/bin oc kubectl && \
 
 # Preserve the working Dockerfile's fixed UID while allowing OpenShift's
 # arbitrary UID (which is normally in GID 0) to write Goose configuration.
-RUN useradd --create-home --uid 1000 --shell /bin/bash goose && \
+RUN chmod 0755 /usr/local/bin/openstack-goose-entrypoint && \
+    useradd --create-home --uid 1000 --shell /bin/bash goose && \
     install -d -o 1000 -g 0 -m 0775 /home/goose/.config/goose && \
     chown -R 1000:0 /home/goose && chmod -R g=u /home/goose
 
-ENV HOME=/home/goose
+ENV HOME=/home/goose \
+    OPENSTACK_GOOSE_MANAGED_CONFIG=/tmp/openstack-goose/config.yaml \
+    GOOSE_ADDITIONAL_CONFIG_FILES=/tmp/openstack-goose/config.yaml:/etc/openstack-goose/config-overlay/config.yaml
 WORKDIR /home/goose
 USER 1000
 
-ENTRYPOINT ["/usr/local/bin/goose"]
-CMD ["--help"]
+ENTRYPOINT ["/usr/local/bin/openstack-goose-entrypoint"]
+CMD ["keepalive"]

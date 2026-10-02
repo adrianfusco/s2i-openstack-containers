@@ -11,3 +11,5 @@ ipmitool
 ceph-common
 # needed for use with `oc cp`
 tar
+# needed for kuttl tests in openstack-operator
+openssl

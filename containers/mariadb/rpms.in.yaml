@@ -16,6 +16,7 @@ packages:
   - mariadb-backup
   - mariadb-server-galera
   - mariadb-server-utils
+  - openssl
   - rsync
   - socat
   - stunnel

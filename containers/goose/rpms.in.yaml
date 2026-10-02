@@ -9,6 +9,7 @@ arches:
   - aarch64
 
 packages:
+  - bash
   - ca-certificates
   - clang
   - cmake
@@ -17,10 +18,12 @@ packages:
   - gcc-c++
   - git-core
   - gzip
+  - jq
   - libgomp
   - libxcb
   - openssl-devel
   - openssl-libs
   - pkgconf-pkg-config
   - tar
+  - vim-minimal
   - xz

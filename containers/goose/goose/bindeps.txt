@@ -1,3 +1,4 @@
+bash
 ca-certificates
 dbus-libs
 git-core
@@ -6,3 +7,5 @@ libxcb
 openssl-libs
 gzip
 tar
+jq
+vim-minimal

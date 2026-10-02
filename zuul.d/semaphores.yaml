@@ -1,0 +1,4 @@
+---
+- semaphore:
+    name: s2i-builder
+    max: 20

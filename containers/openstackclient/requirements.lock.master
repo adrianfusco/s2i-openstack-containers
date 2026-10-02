@@ -60,6 +60,7 @@ python-ironic-inspector-client==5.4.0
 python-ironicclient==6.3.0
 python-keystoneclient==6.0.0
 python-manilaclient==6.3.0
+python-neutronclient==14.0.0
 python-novaclient==18.13.1
 python-observabilityclient==1.4.0
 python-octaviaclient==3.15.0

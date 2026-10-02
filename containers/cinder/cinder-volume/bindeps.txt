@@ -5,6 +5,19 @@ ceph-common
 # qemu-img is used by cinder for encrypted volume creation (LUKS),
 # image format inspection, and image conversion (qemu-img create/info/convert)
 qemu-img
+# The rbd block driver is a loadable module (/usr/lib64/qemu-kvm/block-rbd.so)
+# shipped separately from qemu-img. Without it the RBD driver's image
+# copy/reimage fails with "Unknown protocol 'rbd'".
+qemu-kvm-block-rbd
 # NFS backend support: os-brick shells out to mount(8), which needs the
 # /sbin/mount.nfs helper from nfs-utils
 nfs-utils
+# LVM backend: cinder.brick.local_dev.lvm shells out to vgs/lvs/lvcreate/
+# lvremove/lvextend via cinder-rootwrap
+lvm2
+# LVM-LIO target: cinder-rtstool drives the LIO kernel target
+targetcli
+# NVMe-oF target (nvmet driver)
+nvmetcli
+# LUKS encrypted volumes: os-brick/castellan shell out to cryptsetup
+cryptsetup

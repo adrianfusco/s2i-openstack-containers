@@ -1,0 +1,8 @@
+# Heat client plugins whose clients are excluded in
+# excluded-requirements.txt. Dead code: stripped from the source tree at
+# build time (module and resource package).
+blazar
+magnum
+mistral
+trove
+zun

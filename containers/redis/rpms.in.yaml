@@ -9,5 +9,6 @@ arches:
   - aarch64
 
 packages:
+  - openssl
   - procps-ng
   - valkey

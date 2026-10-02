@@ -24,6 +24,7 @@
       rebuilds, and add related required projects.
     timeout: 7200
     nodeset: s2i-openstack-containers-image-builder
+    semaphores: s2i-builder
     required-projects:
       - github.com/openstack-k8s-operators/s2i-openstack-containers
       - opendev.org/zuul/zuul-jobs
@@ -36,6 +37,11 @@
       s2i_ci_images: all
       s2i_ci_stream: master
       s2i_ci_content_provider: true
+      s2i_ci_use_provider_pip_mirror: true
+      s2i_ci_enable_rpm_cache: true
+      # The Vexxhost mirror does not currently carry the CentOS Stream 10
+      # SIG repositories used by these images, so cache their original URLs.
+      s2i_ci_rpm_cache_use_provider_mirror: false
 
 - job:
     name: s2i-test-base
@@ -75,6 +81,11 @@
       # and manila-share)
       s2i_cinder_volume_backends: []
       s2i_manila_share_backends: []
+      # Ensure that by default the cinder-volume and manila-share
+      # container images are not set, or they end up being overriden
+      # in the OpenStackVersion CR (until the code is made more linear).
+      cifmw_edpm_prepare_cindervolumes: []
+      cifmw_edpm_prepare_manilashares: []
       cifmw_set_containers_images: >-
         {{
           (
@@ -105,11 +116,15 @@
             }] if s2i_manila_share_backends | default([]) else []
           )
         }}
+      s2i_extras_base:
+        - '@scenarios/centos-9/multinode-ci.yml'
+      s2i_extras: []
+      cifmw_extras: "{{ [s2i_extras_base | default([]), s2i_extras] | flatten }}"
 
 - job:
     name: s2i-test-base-ceph
     abstract: true
-    parent: podified-multinode-hci-deployment-crc-1comp-backends
+    parent: podified-multinode-hci-deployment-crc-1comp
     description: |
       Validate speculatively-built s2i images against a live
       HCI OpenStack deployment with Ceph. s2i-built images from the
@@ -121,7 +136,12 @@
       It is possible to extend it with additional mapping,
       for example for cinder-volume and manila-share.
     required-projects: *s2i_test_base_requiredprojects
-    vars: *s2i_test_base_vars
+    vars:
+      <<: *s2i_test_base_vars
+      cifmw_services_manila_enabled: false
+      s2i_extras_base:
+        - '@scenarios/centos-9/multinode-ci.yml'
+        - '@scenarios/centos-9/hci_ceph_backends.yml'
 
 - job:
     name: s2i-openstack-deploy-validation
@@ -148,10 +168,12 @@
       # content provider job (the s2i one), and not the operator one,
       # which would set this value.
       content_provider_registry_ip: "{{ s2i_content_provider_registry_ip }}"
-      # Heat is not part of the default control plane, so enable it during
-      # edpm_prepare (same phase where s2i injects its container images) so
-      # the mapped s2i heat images (heat/heat-api, heat/heat-engine) actually
-      # get deployed. Mirrors heat-operator's ci/tempest/ci_fw_vars.yaml.
+      # Heat and Ironic is not part of the default control plane, so enable
+      # it during edpm_prepare (same phase where s2i injects its container
+      # images) so the mapped s2i heat images (heat/heat-api, heat/heat-engine)
+      # and ironic images (ironic/ironic-api, ironic/ironic-conductor,
+      # ironic/ironic-graphical-console) actually get deployed.
+      # Mirrors heat-operator's ci/tempest/ci_fw_vars.yaml.
       cifmw_edpm_prepare_kustomizations:
         - apiVersion: kustomize.config.k8s.io/v1beta1
           kind: Kustomization
@@ -165,10 +187,14 @@
                 spec:
                   heat:
                     enabled: true
+                  ironic:
+                    enabled: true
               target:
                 kind: OpenStackControlPlane
       # actually deploy swift and disable RGW
       cifmw_services_swift_enabled: true
+      # manila needs to be tested
+      cifmw_services_manila_enabled: true
       cifmw_ceph_daemons_layout:
         rgw_enabled: false
         dashboard_enabled: false

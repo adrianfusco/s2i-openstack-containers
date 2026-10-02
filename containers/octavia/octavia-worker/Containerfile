@@ -91,8 +91,10 @@ RUN pkgs=$(cat /tmp/bindeps.txt | grep -v '^#' | grep -v '^$' | tr '\n' ' ') && 
 COPY --from=build /wheels /wheels
 COPY --from=build /tmp/build-constraints.txt /deps-upper-constraints.txt
 COPY --from=build /source-built-packages.txt /source-built-packages.txt
+
 COPY pythondeps.txt /tmp/pythondeps.txt
-RUN extrapkgs=$(cat /tmp/pythondeps.txt | grep -v '^#' | grep -v '^$' | tr '\n' ' ') && \
+COPY octavia-worker/pythondeps.txt /tmp/pythondeps-extras.txt
+RUN extrapkgs=$(cat /tmp/pythondeps.txt /tmp/pythondeps-extras.txt | grep -v '^#' | grep -v '^$' | tr '\n' ' ') && \
     pip3 install --no-cache-dir --prefix=/usr \
       -c /deps-upper-constraints.txt \
       --find-links=/wheels/deps \

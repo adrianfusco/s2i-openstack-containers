@@ -113,9 +113,8 @@ COPY --from=build /configfiles/etc/octavia/policy.yaml /etc/octavia/policy.yaml
 RUN chmod 640 /etc/octavia/policy.yaml && \
     chown octavia:octavia /etc/octavia/policy.yaml
 
-RUN mkdir -p /var/www/cgi-bin/octavia
-COPY octavia-api/scripts/octavia-wsgi /var/www/cgi-bin/octavia/octavia-wsgi
-RUN chown -R octavia /var/www/cgi-bin/octavia && chmod 755 /var/www/cgi-bin/octavia/octavia-wsgi
+COPY octavia-api/scripts/octavia-wsgi /usr/bin
+RUN chmod 755 /usr/bin/octavia-wsgi
 
 RUN sed -i -r 's,^(Listen 80),#\1,' /etc/httpd/conf/httpd.conf && \
     sed -i -r 's,^(Listen 443),#\1,' /etc/httpd/conf.d/ssl.conf 2>/dev/null || true && \

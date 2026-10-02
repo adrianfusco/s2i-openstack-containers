@@ -31,6 +31,16 @@ RUN sed -e 's/#.*//' -e 's/[[:space:]]//g' -e '/^$/d' /tmp/excluded-requirements
     done && \
     rm /tmp/excluded-requirements.txt
 
+# Drop dead plugins of the excluded clients above: module and resource
+# package. See excluded-plugins.txt.
+COPY excluded-plugins.txt /tmp/excluded-plugins.txt
+RUN sed -e 's/#.*//' -e 's/[[:space:]]//g' -e '/^$/d' /tmp/excluded-plugins.txt | \
+    while IFS= read -r svc; do \
+      rm -rf "/src/heat/heat/engine/clients/os/${svc}.py" \
+             "/src/heat/heat/engine/resources/openstack/${svc}"; \
+    done && \
+    rm /tmp/excluded-plugins.txt
+
 # We can force build from source of all packages optionally
 ARG PIP_NO_BINARY=""
 ENV PIP_NO_BINARY=${PIP_NO_BINARY}

@@ -10,3 +10,4 @@ arches:
 
 packages:
   - memcached
+  - openssl
